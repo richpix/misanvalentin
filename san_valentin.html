@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>¿Quieres ser mi San Valentín? 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        /* Animación de corazones flotantes en el fondo */
+        .hearts-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 20px;
+            animation: float 15s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .question-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .question-box:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #e74c3c;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            min-height: 60px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        #btnSi {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #btnSi:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        #btnSi:active {
+            transform: scale(0.95);
+        }
+
+        #btnNo {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            position: fixed;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        #btnNo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Canvas para Three.js */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Reproductor de audio */
+        .audio-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            max-width: 90%;
+        }
+
+        .audio-container iframe {
+            border-radius: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .audio-container {
+                bottom: 10px;
+                padding: 10px;
+            }
+        }
+
+        #canvas-container.active {
+            display: flex;
+        }
+
+        #three-canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .message {
+            position: absolute;
+            bottom: 20px;
+            color: white;
+            font-size: 1.8rem;
+            text-align: center;
+            width: 100%;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease;
+            padding: 0 20px;
+        }
+
+        .date-info {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 3px solid #ff1744;
+            animation: slideUp 1s ease;
+            z-index: 1003;
+            max-width: 90%;
+        }
+
+        .date-info h2 {
+            color: #ff1744;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .date-info .date-details {
+            color: #333;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .date-info .date-details strong {
+            color: #f5576c;
+            font-size: 1.5rem;
+        }
+
+        .date-info .calendar-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .image-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid #ff1744;
+            box-shadow: 0 0 50px rgba(255, 23, 68, 0.8),
+                        0 0 100px rgba(255, 23, 68, 0.5);
+            animation: pulseGlow 2s infinite;
+            z-index: 1002;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ajuste específico para móviles */
+        @media (max-width: 768px) {
+            .image-display {
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .image-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-display .loading-heart {
+            font-size: 4rem;
+            animation: heartBeat 1s infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 50px rgba(255, 23, 68, 0.8),
+                            0 0 100px rgba(255, 23, 68, 0.5);
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                box-shadow: 0 0 70px rgba(255, 23, 68, 1),
+                            0 0 130px rgba(255, 23, 68, 0.7);
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+                line-height: 1.3;
+            }
+
+            .emoji {
+                font-size: 3rem;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1rem;
+                min-width: 120px;
+            }
+
+            .question-box {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .message {
+                font-size: 1.5rem;
+                bottom: 30px;
+                padding: 0 20px;
+            }
+
+            .image-display {
+                width: 250px;
+                height: 250px;
+                top: 45%;
+            }
+
+            .close-btn {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .audio-container {
+                padding: 8px 12px;
+                bottom: 10px;
+                max-width: 95%;
+            }
+
+            .audio-container iframe {
+                height: 100px;
+            }
+
+            .date-info {
+                bottom: 140px;
+                padding: 20px 25px;
+                max-width: 85%;
+            }
+
+            .date-info h2 {
+                font-size: 1.5rem;
+                margin-bottom: 12px;
+            }
+
+            .date-info .date-details {
+                font-size: 1.1rem;
+                line-height: 1.6;
+            }
+
+            .date-info .date-details strong {
+                font-size: 1.3rem;
+            }
+
+            .date-info .calendar-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.4rem;
+                line-height: 1.4;
+            }
+
+            .emoji {
+                font-size: 2.5rem;
+            }
+
+            button {
+                padding: 10px 25px;
+                font-size: 0.95rem;
+                min-width: 100px;
+            }
+
+            .question-box {
+                padding: 25px 15px;
+            }
+
+            .buttons-container {
+                min-height: 100px;
+                gap: 15px;
+            }
+
+            .image-display {
+                width: 180px;
+                height: 180px;
+                border-width: 3px;
+                top: 42%;
+            }
+
+            .message {
+                font-size: 1.1rem;
+                bottom: 20px;
+            }
+
+            .loading-heart {
+                font-size: 3rem !important;
+            }
+
+            .audio-container iframe {
+                height: 90px;
+            }
+
+            .date-info {
+                bottom: 120px;
+                padding: 15px 20px;
+                max-width: 90%;
+            }
+
+            .date-info h2 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+
+            .date-info .date-details {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+            .date-info .date-details strong {
+                font-size: 1.1rem;
+            }
+
+            .date-info .calendar-icon {
+                font-size: 2rem;
+                margin-bottom: 5px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            button {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+            }
+
+            .image-display {
+                width: 150px;
+                height: 150px;
+                top: 40%;
+            }
+
+            .message {
+                font-size: 0.9rem;
+            }
+
+            .date-info {
+                bottom: 100px;
+                padding: 12px 15px;
+            }
+
+            .date-info h2 {
+                font-size: 1.1rem;
+            }
+
+            .date-info .date-details {
+                font-size: 0.85rem;
+            }
+
+            .date-info .date-details strong {
+                font-size: 1rem;
+            }
+        }
+
+        /* Landscape móvil */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .question-box {
+                padding: 20px 30px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .emoji {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+
+            .buttons-container {
+                margin-top: 15px;
+            }
+
+            .image-display {
+                width: 200px;
+                height: 200px;
+            }
+
+            .message {
+                font-size: 1rem;
+                bottom: 10px;
+            }
+
+            .audio-container {
+                display: none;
+            }
+
+            .date-info {
+                bottom: auto;
+                top: 15px;
+                padding: 12px 20px;
+            }
+
+            .date-info h2 {
+                font-size: 1rem;
+                margin-bottom: 5px;
+            }
+
+            .date-info .date-details {
+                font-size: 0.85rem;
+                line-height: 1.3;
+            }
+
+            .date-info .calendar-icon {
+                font-size: 1.5rem;
+                margin-bottom: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Corazones flotantes de fondo -->
+    <div class="hearts-background" id="heartsBackground"></div>
+
+    <!-- Reproductor de audio de SoundCloud -->
+        <div class="audio-container">
+                <!-- Fallback local audio: coloca un archivo `song.mp3` en la misma carpeta o cambia la URL -->
+                
+<iframe id="player" width="50" height="50" src="https://www.youtube.com/embed/ZhIsAZO5gl0?controls=1&rel=0&enablejsapi=1&origin=http://localhost" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                
+        </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <div class="question-box">
+            <span class="emoji">💖</span>
+            <h1>mi lili<br>¿Quieres ser mi San Valentín?</h1>
+            <div class="buttons-container" id="buttonsContainer">
+                <button id="btnSi">¡Sí! 💕</button>
+                <button id="btnNo">No 😢</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas para Three.js -->
+    <div id="canvas-container">
+        <button class="close-btn" id="closeBtn">Cerrar ✕</button>
+        
+        <!-- Información de la cita -->
+        <div class="date-info">
+            <span class="calendar-icon">📅</span>
+            <h2>¡Tenemos una cita!</h2>
+            <div class="date-details">
+                <strong>14 de Febrero</strong><br>
+                a las <strong>6:30 PM</strong> ⏰<br>
+                ¡No lo olvides! 💕
+            </div>
+        </div>
+        
+        <div class="image-display">
+            <img src="https://tiles.360tours.com.mx/14feb.jpg" alt="mi lili" crossorigin="anonymous">
+        </div>
+        <canvas id="three-canvas"></canvas>
+        <div class="message">¡Sabía que dirías que sí, mi lili! 💕✨</div>
+    </div>
+
+    <!-- Three.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Crear corazones flotantes en el fondo
+        function createFloatingHearts() {
+            const heartsContainer = document.getElementById('heartsBackground');
+            const heartSymbols = ['💕', '💖', '💗', '💝', '❤️', '💓', '💞'];
+            
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.animationDelay = Math.random() * 15 + 's';
+                heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        createFloatingHearts();
+
+        // Reproducción de audio robusta: intenta local primero, luego iframe YouTube
+        async function playMusic() {
+            const audio = document.getElementById('audioPlayer');
+            const iframe = document.getElementById('player');
+
+            // Intentar reproducir audio local si existe src
+            if (audio && audio.src) {
+                try {
+                    await audio.play();
+                    console.log('Reproduciendo audio local');
+                    return;
+                } catch (err) {
+                    console.warn('No se pudo reproducir audio local:', err);
+                }
+            }
+
+            // Si falla o no hay audio, intentar reproducir el iframe de YouTube mediante postMessage
+            if (iframe && iframe.contentWindow) {
+                try {
+                    // Enviar comando API para reproducir
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    console.log('Solicitud de reproducción enviada al iframe de YouTube');
+                    return;
+                } catch (err) {
+                    console.warn('No se pudo controlar iframe:', err);
+                }
+            }
+
+            // Último recurso: añadir autoplay al src del iframe (algunos navegadores requerirán gesto de usuario)
+            if (iframe) {
+                if (!/autoplay=1/.test(iframe.src)) {
+                    iframe.src = iframe.src + (iframe.src.includes('?') ? '&' : '?') + 'autoplay=1';
+                }
+            }
+        }
+
+        // Conectar el botón de reproducción
+        const playButton = document.getElementById('playButton');
+        if (playButton) {
+            playButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await playMusic();
+            });
+        }
+
+        // Lógica del botón "No"
+        const btnNo = document.getElementById('btnNo');
+        const btnSi = document.getElementById('btnSi');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        const canvasContainer = document.getElementById('canvas-container');
+        const closeBtn = document.getElementById('closeBtn');
+
+        let noButtonTimeout;
+
+        function moveNoButton() {
+            // Obtener dimensiones de la ventana
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // Obtener dimensiones del botón
+            const buttonWidth = btnNo.offsetWidth;
+            const buttonHeight = btnNo.offsetHeight;
+            
+            // Calcular posición aleatoria dentro de toda la pantalla
+            // Dejamos un margen generoso para que siempre sea visible
+            const margin = 30;
+            const maxX = Math.max(margin, windowWidth - buttonWidth - margin);
+            const maxY = Math.max(margin, windowHeight - buttonHeight - margin);
+            
+            // Generar posición aleatoria con límites seguros
+            const randomX = Math.min(Math.max(margin, Math.random() * maxX), windowWidth - buttonWidth - margin);
+            const randomY = Math.min(Math.max(margin, Math.random() * maxY), windowHeight - buttonHeight - margin);
+            
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
+        }
+
+        // Inicializar posición del botón No en el centro-derecha de la pantalla
+        window.addEventListener('load', () => {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const buttonWidth = btnNo.offsetWidth;
+            const buttonHeight = btnNo.offsetHeight;
+            
+            btnNo.style.left = (windowWidth - buttonWidth - 150) + 'px';
+            btnNo.style.top = (windowHeight / 2 - buttonHeight / 2) + 'px';
+        });
+
+        // Reposicionar el botón No si la ventana cambia de tamaño y el botón queda fuera
+        window.addEventListener('resize', () => {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const buttonWidth = btnNo.offsetWidth;
+            const buttonHeight = btnNo.offsetHeight;
+            
+            const currentLeft = parseInt(btnNo.style.left) || 0;
+            const currentTop = parseInt(btnNo.style.top) || 0;
+            
+            // Si el botón está fuera de los límites, reposicionarlo
+            if (currentLeft + buttonWidth > windowWidth - 30 || currentLeft < 30 ||
+                currentTop + buttonHeight > windowHeight - 30 || currentTop < 30) {
+                btnNo.style.left = (windowWidth / 2 - buttonWidth / 2) + 'px';
+                btnNo.style.top = (windowHeight / 2 - buttonHeight / 2) + 'px';
+            }
+        });
+
+        // Para desktop: hover
+        if (window.matchMedia('(min-width: 769px)').matches) {
+            btnNo.addEventListener('mouseenter', () => {
+                moveNoButton();
+            });
+        }
+
+        // Para móvil: click/touch
+        btnNo.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            moveNoButton();
+        });
+
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            moveNoButton();
+        }, { passive: false });
+
+        // Prevenir zoom en doble tap en móvil
+        btnNo.addEventListener('touchend', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Botón Sí - Mostrar animación 3D
+        btnSi.addEventListener('click', () => {
+            canvasContainer.classList.add('active');
+            document.body.classList.add('no-scroll');
+            init3DScene();
+            
+            // Manejar carga de imagen
+            const imageDisplay = document.querySelector('.image-display');
+            const img = imageDisplay.querySelector('img');
+            
+            img.onerror = function() {
+                // Si la imagen no carga, mostrar un corazón emoji grande
+                imageDisplay.innerHTML = '<span class="loading-heart">💖</span>';
+            };
+            
+            img.onload = function() {
+                console.log('Imagen cargada correctamente');
+            };
+        });
+
+        // Cerrar canvas
+        closeBtn.addEventListener('click', () => {
+            canvasContainer.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+        });
+
+        // Three.js - Escena 3D con árbol de corazones
+        function init3DScene() {
+            const canvas = document.getElementById('three-canvas');
+            const scene = new THREE.Scene();
+            
+            // Configurar cámara
+            const camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.z = 8;
+            camera.position.y = 2;
+
+            // Renderizador
+            const renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas,
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Crear forma de corazón para las hojas
+            function createHeartShape() {
+                const shape = new THREE.Shape();
+                const x = 0, y = 0;
+                
+                shape.moveTo(x + 0.5, y + 0.5);
+                shape.bezierCurveTo(x + 0.5, y + 0.5, x + 0.4, y, x, y);
+                shape.bezierCurveTo(x - 0.6, y, x - 0.6, y + 0.7, x - 0.6, y + 0.7);
+                shape.bezierCurveTo(x - 0.6, y + 1.1, x - 0.3, y + 1.54, x + 0.5, y + 1.9);
+                shape.bezierCurveTo(x + 1.2, y + 1.54, x + 1.6, y + 1.1, x + 1.6, y + 0.7);
+                shape.bezierCurveTo(x + 1.6, y + 0.7, x + 1.6, y, x + 1, y);
+                shape.bezierCurveTo(x + 0.7, y, x + 0.5, y + 0.5, x + 0.5, y + 0.5);
+                
+                return shape;
+            }
+
+            // Grupo para el árbol completo
+            const treeGroup = new THREE.Group();
+            treeGroup.scale.set(0, 0, 0); // Empezar desde escala 0
+
+            // TRONCO del árbol
+            const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.5, 4, 8);
+            const trunkMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8b4513,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 0;
+            treeGroup.add(trunk);
+
+            // RAMAS principales
+            const branchMaterial = new THREE.MeshStandardMaterial({
+                color: 0xa0522d,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+
+            // Crear ramas
+            function createBranch(length, radius, posY, rotationZ) {
+                const branchGeometry = new THREE.CylinderGeometry(radius * 0.6, radius, length, 6);
+                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+                branch.position.y = posY;
+                branch.rotation.z = rotationZ;
+                branch.position.x = Math.sin(rotationZ) * (length / 2);
+                return branch;
+            }
+
+            // Añadir ramas al árbol
+            treeGroup.add(createBranch(1.5, 0.2, 1.5, Math.PI / 6));
+            treeGroup.add(createBranch(1.5, 0.2, 1.5, -Math.PI / 6));
+            treeGroup.add(createBranch(1.8, 0.18, 2.2, Math.PI / 5));
+            treeGroup.add(createBranch(1.8, 0.18, 2.2, -Math.PI / 5));
+            treeGroup.add(createBranch(1.3, 0.15, 2.8, Math.PI / 4));
+            treeGroup.add(createBranch(1.3, 0.15, 2.8, -Math.PI / 4));
+
+            // HOJAS DE CORAZÓN
+            const heartShape = createHeartShape();
+            const extrudeSettings = {
+                depth: 0.2,
+                bevelEnabled: true,
+                bevelSegments: 5,
+                steps: 1,
+                bevelSize: 0.05,
+                bevelThickness: 0.05
+            };
+
+            const heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+            
+            // Cargar textura para las hojas
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.crossOrigin = 'anonymous';
+            
+            // Material para las hojas con textura
+            const leafMaterial = new THREE.MeshStandardMaterial({
+                color: 0xff1744,
+                metalness: 0.3,
+                roughness: 0.4,
+                emissive: 0xff1744,
+                emissiveIntensity: 0.3
+            });
+
+            // Intentar cargar textura con proxy CORS
+            const imageUrl = 'https://tiles.360tours.com.mx/14feb.jpg';
+            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(imageUrl);
+            
+            textureLoader.load(
+                proxyUrl,
+                function (texture) {
+                    texture.wrapS = THREE.ClampToEdgeWrapping;
+                    texture.wrapT = THREE.ClampToEdgeWrapping;
+                    texture.minFilter = THREE.LinearFilter;
+                    leafMaterial.map = texture;
+                    leafMaterial.needsUpdate = true;
+                    console.log('Textura cargada en las hojas');
+                },
+                undefined,
+                function (error) {
+                    console.log('Usando color sólido para las hojas');
+                }
+            );
+
+            // Crear múltiples hojas de corazón
+            const leaves = [];
+            const leafPositions = [
+                // Hojas en la copa del árbol
+                { x: 0, y: 3.5, z: 0, scale: 0.6, rotation: { x: 0, y: 0, z: 0 } },
+                { x: 0.8, y: 3.2, z: 0.5, scale: 0.5, rotation: { x: 0.3, y: 0.5, z: 0.2 } },
+                { x: -0.8, y: 3.2, z: -0.5, scale: 0.5, rotation: { x: -0.3, y: -0.5, z: -0.2 } },
+                { x: 1.2, y: 2.8, z: 0, scale: 0.55, rotation: { x: 0.2, y: 0.8, z: 0.4 } },
+                { x: -1.2, y: 2.8, z: 0.3, scale: 0.55, rotation: { x: -0.2, y: -0.8, z: -0.4 } },
+                // Hojas en ramas medias
+                { x: 1.5, y: 2.3, z: -0.5, scale: 0.5, rotation: { x: 0.4, y: 1, z: 0.3 } },
+                { x: -1.5, y: 2.3, z: 0.5, scale: 0.5, rotation: { x: -0.4, y: -1, z: -0.3 } },
+                { x: 0.5, y: 2.5, z: 1, scale: 0.45, rotation: { x: 0.5, y: 0.3, z: 0.5 } },
+                { x: -0.5, y: 2.5, z: -1, scale: 0.45, rotation: { x: -0.5, y: -0.3, z: -0.5 } },
+                // Hojas en ramas bajas
+                { x: 1.8, y: 1.8, z: 0, scale: 0.48, rotation: { x: 0.3, y: 1.2, z: 0.2 } },
+                { x: -1.8, y: 1.8, z: 0.3, scale: 0.48, rotation: { x: -0.3, y: -1.2, z: -0.2 } },
+                { x: 0.8, y: 1.5, z: 0.8, scale: 0.42, rotation: { x: 0.6, y: 0.4, z: 0.6 } },
+                { x: -0.8, y: 1.5, z: -0.8, scale: 0.42, rotation: { x: -0.6, y: -0.4, z: -0.6 } },
+                // Hojas adicionales para más volumen
+                { x: 0.3, y: 3, z: -0.7, scale: 0.4, rotation: { x: 0.2, y: 0.2, z: 0.3 } },
+                { x: -0.3, y: 3, z: 0.7, scale: 0.4, rotation: { x: -0.2, y: -0.2, z: -0.3 } },
+            ];
+
+            leafPositions.forEach((pos, index) => {
+                const leaf = new THREE.Mesh(heartGeometry, leafMaterial.clone());
+                leaf.position.set(pos.x, pos.y, pos.z);
+                leaf.scale.set(pos.scale, pos.scale, pos.scale);
+                leaf.rotation.set(pos.rotation.x, pos.rotation.y, pos.rotation.z);
+                
+                // Offset para el centro del corazón
+                leaf.position.x -= pos.scale * 0.5;
+                leaf.position.y -= pos.scale * 1;
+                
+                treeGroup.add(leaf);
+                leaves.push({ mesh: leaf, initialRotation: { ...pos.rotation } });
+            });
+
+            // Posicionar el árbol
+            treeGroup.position.y = -2;
+            scene.add(treeGroup);
+
+            // Luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const pointLight1 = new THREE.PointLight(0xff69b4, 1.5, 100);
+            pointLight1.position.set(5, 5, 5);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xff1744, 1.5, 100);
+            pointLight2.position.set(-5, 3, 5);
+            scene.add(pointLight2);
+
+            const pointLight3 = new THREE.PointLight(0xffffff, 0.8, 100);
+            pointLight3.position.set(0, 8, 0);
+            scene.add(pointLight3);
+
+            // Partículas de corazones flotantes
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 800;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 20;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.08,
+                color: 0xffb3d9,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Animación
+            let animationProgress = 0;
+            const animationDuration = 2; // segundos
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Animar el zoom del árbol
+                if (animationProgress < animationDuration) {
+                    animationProgress += 0.016; // ~60fps
+                    const progress = Math.min(animationProgress / animationDuration, 1);
+                    
+                    // Easing function (ease-out-back)
+                    const easeOutBack = (x) => {
+                        const c1 = 1.70158;
+                        const c3 = c1 + 1;
+                        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+                    };
+                    
+                    const scale = easeOutBack(progress) * 1;
+                    treeGroup.scale.set(scale, scale, scale);
+                }
+
+                // Rotar el árbol suavemente
+                treeGroup.rotation.y += 0.005;
+
+                // Animar las hojas individualmente
+                leaves.forEach((leaf, index) => {
+                    const time = Date.now() * 0.001;
+                    const offset = index * 0.5;
+                    leaf.mesh.rotation.z = leaf.initialRotation.z + Math.sin(time + offset) * 0.1;
+                    leaf.mesh.rotation.x = leaf.initialRotation.x + Math.cos(time + offset) * 0.05;
+                });
+
+                // Animar partículas
+                particlesMesh.rotation.y += 0.001;
+                particlesMesh.rotation.x += 0.0005;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Responsive
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            window.addEventListener('resize', onWindowResize);
+        }
+    </script>
+</body>
+</html>
