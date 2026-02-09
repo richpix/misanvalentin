@@ -637,7 +637,14 @@
         <div class="audio-container">
                 <!-- Fallback local audio: coloca un archivo `song.mp3` en la misma carpeta o cambia la URL -->
                 
-<iframe id="player" width="50" height="50" src="https://www.youtube.com/embed/ZhIsAZO5gl0?controls=1&rel=0&enablejsapi=1&origin=http://localhost" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <iframe 
+  width="50" 
+  height="50" 
+  src="https://www.youtube.com/embed/ZhIsAZO5gl0?autoplay=1&start=1:40" 
+  frameborder="0" 
+  allow="autoplay; encrypted-media" 
+  allowfullscreen>
+</iframe>
                 
         </div>
 
@@ -698,50 +705,7 @@
 
         createFloatingHearts();
 
-        // Reproducción de audio robusta: intenta local primero, luego iframe YouTube
-        async function playMusic() {
-            const audio = document.getElementById('audioPlayer');
-            const iframe = document.getElementById('player');
-
-            // Intentar reproducir audio local si existe src
-            if (audio && audio.src) {
-                try {
-                    await audio.play();
-                    console.log('Reproduciendo audio local');
-                    return;
-                } catch (err) {
-                    console.warn('No se pudo reproducir audio local:', err);
-                }
-            }
-
-            // Si falla o no hay audio, intentar reproducir el iframe de YouTube mediante postMessage
-            if (iframe && iframe.contentWindow) {
-                try {
-                    // Enviar comando API para reproducir
-                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                    console.log('Solicitud de reproducción enviada al iframe de YouTube');
-                    return;
-                } catch (err) {
-                    console.warn('No se pudo controlar iframe:', err);
-                }
-            }
-
-            // Último recurso: añadir autoplay al src del iframe (algunos navegadores requerirán gesto de usuario)
-            if (iframe) {
-                if (!/autoplay=1/.test(iframe.src)) {
-                    iframe.src = iframe.src + (iframe.src.includes('?') ? '&' : '?') + 'autoplay=1';
-                }
-            }
-        }
-
-        // Conectar el botón de reproducción
-        const playButton = document.getElementById('playButton');
-        if (playButton) {
-            playButton.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await playMusic();
-            });
-        }
+        
 
         // Lógica del botón "No"
         const btnNo = document.getElementById('btnNo');
